@@ -1,0 +1,197 @@
+
+# Dependencies and Setup
+import pandas as pd
+import numpy as np
+
+# File to Load (Remember to Change These)
+heroes_pm = "Resources/purchase_data.csv"
+
+# Read Purchasing File and store into Pandas data frame
+heroes_pm = pd.read_csv(heroes_pm)
+heroes_pm_df = pd.DataFrame(heroes_pm)
+heroes_pm_df.head()
+
+total_players = len(heroes_pm_df["SN"]. value_counts())
+total_count = pd.DataFrame({"Total players": total_players}, index = [0])
+total_count
+
+
+unique_items = len(heroes_pm["Item ID"].unique())
+average_price = heroes_pm["Price"].mean()
+purchases = heroes_pm["Purchase ID"].count()
+revenue = heroes_pm["Price"].sum()
+Totals_Summary = pd.DataFrame({"number of unique items":[unique_items],
+                               "average price":[average_price],
+                               "number of purchases":[purchases], 
+                               "total revenue":[revenue]})
+#output
+Totals_Summary["average price"] = Totals_Summary["average price"].map("${:.2f}".format)
+Totals_Summary["total revenue"] = Totals_Summary["total revenue"].map("${:}".format)
+Totals_Summary
+
+
+gender_grouped = heroes_pm_df.groupby("Gender")
+unique_members = gender_grouped["SN"].nunique()
+percentage = (unique_members/total_players)*100
+
+#Data frame with the summary gender data
+gender_summary = pd.DataFrame({"Percentage of Players": percentage,"Total Counts": unique_members})
+
+gender_summary["Percentage of Players"] = gender_summary["Percentage of Players"].map("{:.2f}%".format)
+
+gender_summary
+
+
+
+# PURCHASING ANALYSIS (GENDER) 
+total_Players = heroes_pm_df["SN"].nunique()
+unique_members = heroes_pm_df[["SN", "Gender"]]
+gender_grouped = unique_members.drop_duplicates()
+total_count = unique_members["Gender"].value_counts()
+
+
+total_players = [total_count[0],total_count[1],total_count[2]]
+percentage =  round((total_count[0]/total_Players)*100,2)
+round((total_count[1]/total_Players)*100,2)
+round((total_count[2]/total_Players)*100,2)
+    
+    #output
+gender_Summary = pd.DataFrame({"Total Count": total_count, "Percentage of Players": percentage})
+gender_Summary.index = (["Male", "Female", "Other/Non-Disclosed"])
+gender_Summary ["Percentage of Players"] = gender_Summary["Percentage of Players"].map("{:.2f}%".format)
+gender_Summary
+
+
+
+#create bins
+age_bins = [0, 9, 14, 19, 24, 29, 34, 39, 200]
+group_names = ["<10", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40+"]
+
+#unique values
+heroes_pm_df["Age Range"]=pd.cut(heroes_pm_df["Age"],age_bins, labels=group_names)
+ageDF = heroes_pm_df[["Age Range", "SN"]].drop_duplicates(subset="SN")
+
+#Totals
+age_summary = ageDF.groupby("Age Range").count()
+ages_total = age_summary["SN"]
+total_count = ageDF["SN"].count()
+age_percentage = round((ages_total/total_count)*100,2)
+age_percentage
+
+#output
+age_summary=pd.DataFrame({"Total Count": ages_total, "Percentage of Players": age_percentage})
+age_summary["Percentage of Players"] = age_summary["Percentage of Players"].map("{:.2f}%".format)
+age_summary
+                    
+                    
+                    
+                    
+# call in bins
+age_bins = [0, 9, 14, 19, 24, 29, 34, 39, 200]
+group_names = ['<10', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40+']
+
+# Place total number of people per age group in their respective bins
+heroes_pm_df['Age Range'] = pd.cut(heroes_pm_df['Age'], age_bins, labels=group_names)
+ageDF2 = heroes_pm_df[["Age Range","SN", "Price"]]
+
+#Age group
+
+age_groups2 = heroes_pm_df.groupby("Age Range")
+purchases_total = age_groups2["Price"].count()
+averageP = age_groups2["Price"].mean()
+purchases_value = age_groups2["Price"].sum()
+purchases_pp = (purchases_value/total_count)
+
+#output
+age_summary = pd.DataFrame({"Purchase Count": purchases_total,
+                                  "Average Purchase Price": averageP,
+                                "Total Purchase Value": purchases_value,
+                               "Avg Total Purchase per Person": purchases_pp})
+
+age_summary["Average Purchase Price"] = age_summary["Average Purchase Price"].map("${:.2f}".format)
+age_summary["Total Purchase Value"] = age_summary["Total Purchase Value"].map("${:.2f}".format)
+age_summary["Avg Total Purchase per Person"] = age_summary["Avg Total Purchase per Person"].map("${:.2f}".format) 
+age_summary = age_summary[["Purchase Count", "Average Purchase Price", "Total Purchase Value", "Avg Total Purchase per Person"]]
+age_summary
+
+
+
+# Calculate 'Total Purchase Count' for each SN
+top_spenders = heroes_pm_df.groupby("SN")
+purchases_total = top_spenders["Gender"].count()
+average_spenders = round(top_spenders["Price"].mean(),2)
+purchases_value = round(top_spenders["Price"].sum(),2)
+
+
+#output
+top_spenders_summary = pd.DataFrame({"Purchase Count": purchases_total, "Item Price": average_spenders, 
+                                     "Total Purchase Value": purchases_value})
+top_spenders_summary = top_spenders_summary[["Purchase Count", "Item Price", "Total Purchase Value"]]
+top_spenders_summary = top_spenders_summary.sort_values(by= "Total Purchase Value", ascending=False).head()
+top_spenders_output = top_spenders_summary.style.format({"Item Price": "${:20,.2f}",
+                                                        "Total Purchase Value": "${:20,.2f}"})
+top_spenders_output
+
+
+
+age_bins = [0, 9, 14, 19, 24, 29, 34, 39, 200]
+group_names = ['<10', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40+']
+
+# Place total number of people per age group in their respective bins
+heroes_pm_df['Age Range'] = pd.cut(heroes_pm_df['Age'], age_bins, labels=group_names)
+ageDF2 = heroes_pm_df[["Age Range","SN", "Price"]]
+
+#Age group
+
+age_groups2 = heroes_pm_df.groupby("Age Range")
+purchases_total = age_groups2["Price"].count()
+averageP = age_groups2["Price"].mean()
+purchases_value = age_groups2["Price"].sum()
+purchases_pp = (purchases_value/total_count)
+
+#output
+age_summary = pd.DataFrame({"Purchase Count": purchases_total,
+                                  "Average Purchase Price": averageP,
+                                "Total Purchase Value": purchases_value,
+                               "Avg Total Purchase per Person": purchases_pp})
+
+age_summary["Average Purchase Price"] = age_summary["Average Purchase Price"].map("${:.2f}".format)
+age_summary["Total Purchase Value"] = age_summary["Total Purchase Value"].map("${:.2f}".format)
+age_summary["Avg Total Purchase per Person"] = age_summary["Avg Total Purchase per Person"].map("${:.2f}".format) 
+age_summary = age_summary[["Purchase Count", "Average Purchase Price", "Total Purchase Value", "Avg Total Purchase per Person"]]
+age_summary
+
+
+    #CALCULATIONS
+popular_items = heroes_pm_df.groupby(["Item ID", "Item Name"])
+purchases_total = popular_items["Gender"].count()
+average_spenders = popular_items["Price"].mean()
+purchases_value = popular_items["Price"].sum()
+
+#OUTPUT
+popular_output = pd.DataFrame({"Purchase Count": purchases_total,
+"Item Price": average_spenders,
+"Total Purchase Value": purchases_value})
+
+popular_output["Item Price"] = popular_output["Item Price"].map("${:.2f}".format)
+popular_output["Total Purchase Value"] = popular_output["Total Purchase Value"].map("${:.2f}".format)
+popular_output = popular_output[["Purchase Count", "Item Price", "Total Purchase Value"]]
+popular_output = popular_output.sort_values(by="Purchase Count", ascending=False)
+popular_output.head()
+
+
+#calculation
+MP_items = heroes_pm_df.groupby(["Item ID", "Item Name"])
+purchases_total = MP_items["Gender"].count()
+average_spenders = round(MP_items["Price"].mean(),2) 
+purchases_value = round(MP_items["Price"].sum(),2)
+
+#output
+MPitems_output = pd.DataFrame({"Purchase Count": purchases_total,
+                               "Item Price": average_spenders,
+                               "Total Purchase Value": purchases_value})
+MPitems_output = MPitems_output.sort_values(by="Total Purchase Value", inplace=False, ascending= False).head()
+
+MPitems_output = MPitems_output.style.format({"Item Price": "${:20,.2f}", "Total Purchase Value": "${:20,.2f}"})
+MPitems_output
+                            
